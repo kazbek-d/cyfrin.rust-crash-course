@@ -54,4 +54,7 @@ fn main() {
     p.x = 15;
     p.y = 25;
     println!("Update Point p={:?}", p);
+
+    // It results in a compile-time error because all struct fields must be explicitly initialized.
+    // let p: Point = Point{};
 }
