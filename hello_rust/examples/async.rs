@@ -1,3 +1,4 @@
+use std::time::Duration;
 use tokio::{join, select};
 
 #[derive(Debug)]
@@ -74,6 +75,12 @@ async fn make_humburger() -> Hamburger {
 // - Returns as soon as one of them completes
 // - Cancels the rest (drops them)
 
+// Simulate an async task that completes after 'dt' milliseconds
+async fn make(val: &'static str, dt: u64) -> &'static str {
+    tokio::time::sleep(Duration::from_millis(dt)).await;
+    val
+}
+
 #[tokio::main]
 async fn main() {
     println!("Async");
@@ -82,4 +89,29 @@ async fn main() {
 
     let h: Hamburger = make_humburger().await;
     println!("Async. Tokio. Hamburger Join: {:?}", h);
+
+    let (res1, res2, res3) = join!(
+        make("coffee", 100),
+        make("green tea", 50),
+        make("lemonade", 20)
+    );
+    println!("Results Res1:{}", res1);
+    println!("Results Res2:{}", res2);
+    println!("Results Res3:{}", res3);
+
+    let res = select! {
+    val = make("coffee", 20) => {
+        println!("coffee");
+        val
+    },
+    val = make("green tea", 20) => {
+        println!("green tea");
+        val
+    },
+    val = make("lemonade", 20) => {
+        println!("lemonade");
+        val
+    },
+    };
+    println!("Results Res:{}", res);
 }
